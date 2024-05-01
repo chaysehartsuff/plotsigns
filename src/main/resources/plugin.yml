@@ -1,0 +1,4 @@
+name: PlotSigns
+version: '${project.version}'
+main: org.spooky.plotsigns.PlotSigns
+api-version: '1.20'
