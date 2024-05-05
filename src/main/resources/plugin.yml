@@ -2,3 +2,9 @@ name: PlotSigns
 version: '${project.version}'
 main: org.spooky.plotsigns.PlotSigns
 api-version: '1.20'
+
+commands:
+  plotscan:
+    description: Scans for all plots and signs
+    usage: /plotscan
+    permission: plotsigns.god
