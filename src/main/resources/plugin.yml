@@ -8,3 +8,8 @@ commands:
     description: Scans for all plots and signs
     usage: /plotscan
     permission: plotsigns.god
+
+    plotscan:
+      description: Release or Add user to plot
+      usage: /plot
+      permission: plotsigns.god

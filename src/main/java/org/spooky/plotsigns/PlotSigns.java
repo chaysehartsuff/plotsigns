@@ -1,43 +1,41 @@
 package org.spooky.plotsigns;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.RegionContainer;
-import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
-import java.util.Set;
+import org.spooky.plotsigns.commands.Plot;
+import org.spooky.plotsigns.commands.PlotScan;
+import org.spooky.plotsigns.storage.JsonUtil;
+import org.spooky.plotsigns.storage.SignPlot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public final class PlotSigns extends JavaPlugin {
 
+    List<SignPlot> signPlots;
+
     @Override
     public void onEnable() {
-        /*WorldGuardPlugin wgPlugin = getWorldGuard();
-        if (wgPlugin == null) {
-            getLogger().warning("WorldGuard not found, disabling plugin!");
-            this.getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
 
-        // Obtain the world
-        World world = this.getServer().getWorlds().get(0); // Default to the first world
+        World world = this.getServer().getWorld("world");
 
-        // Get the region manager for the world
-        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-        RegionManager regions = container.get(BukkitAdapter.adapt(world));
+        loadJSONData();
 
-        if (regions != null) {
-            // Get all region IDs in the world
-            Set<String> allRegions = regions.getRegions().keySet();
-            //regions.getRegions().get(0).getMaximumPoint()
-            getLogger().info("Regions in the world: " + allRegions.toString());
-        } else {
-            getLogger().info("No regions found or WorldGuard not enabled for this world.");
-        }*/
-        this.getCommand("plotscan").setExecutor(new PlotScan(this.getServer().getWorld("world")));
+        // initiate empty signPlots if null
+        if (this.signPlots == null)
+            this.signPlots = new ArrayList<>();
+
+        this.getCommand("plotscan").setExecutor(new PlotScan(world));
+        this.getCommand("plot").setExecutor(new Plot(world, signPlots));
+
+        // Registering the event listener
+        PluginManager pluginManager = this.getServer().getPluginManager();
+        pluginManager.registerEvents(new SignInteractionListener(this.signPlots, world), this);
     }
 
     @Override
@@ -52,5 +50,11 @@ public final class PlotSigns extends JavaPlugin {
             return null;
         }
         return (WorldGuardPlugin) plugin;
+    }
+
+    private void loadJSONData(){
+
+        this.signPlots = JsonUtil.readFromJsonFile("./spooky/plotsigns/signplots.json", new TypeReference<List<SignPlot>>(){});
+
     }
 }

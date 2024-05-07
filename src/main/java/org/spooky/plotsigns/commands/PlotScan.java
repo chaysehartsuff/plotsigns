@@ -1,6 +1,5 @@
-package org.spooky.plotsigns;
+package org.spooky.plotsigns.commands;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 import com.sk89q.worldedit.math.BlockVector3;
@@ -13,11 +12,11 @@ import org.bukkit.command.CommandSender;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.WorldGuard;
 import org.bukkit.World;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import org.bukkit.util.BlockVector;
+import org.spooky.plotsigns.storage.JsonUtil;
+import org.spooky.plotsigns.storage.SignPlot;
 
 public class PlotScan implements CommandExecutor {
 
@@ -47,7 +46,8 @@ public class PlotScan implements CommandExecutor {
         }
 
         List<String> regionNames = getRegionNames();
-        Map<String, Vector3> signCoords = new HashMap<>();
+        //Map<String, Vector3> signCoords = new HashMap<>();
+        ArrayList<SignPlot> signPlots = new ArrayList<SignPlot>();
         for (String regionName : regionNames) {
             ProtectedRegion region = regionManager.getRegion(regionName);
             if (region != null) {
@@ -63,16 +63,22 @@ public class PlotScan implements CommandExecutor {
                             commandSender.sendMessage("No sign found for region perimeter");
                         }
                     }
-                    continue;
                 } else{
                     Vector3 coords = getSignCords(region.getMaximumPoint(), region.getMinimumPoint(), commandSender);
-                    signCoords.put(region.getId(), coords);
+                    //signCoords.put(region.getId(), coords);
+                    signPlots.add(new SignPlot((int)coords.getX(), (int)coords.getY(), (int)coords.getZ(), regionName));
                 }
 
             } else {
                 commandSender.sendMessage("No region found with the name: " + regionName);
             }
         }
+
+
+        // Save to plots.json
+        JsonUtil.writeToJsonFile(signPlots, "./spooky/plotsigns/signplots.json");
+        commandSender.sendMessage("plots.json saved to spooky/plotsigns/signplots");
+
         return true;
     }
 
