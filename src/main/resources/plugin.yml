@@ -9,7 +9,7 @@ commands:
     usage: /plotscan
     permission: plotsigns.god
 
-    plotscan:
-      description: Release or Add user to plot
-      usage: /plot
-      permission: plotsigns.god
+  plot:
+    description: Release or Add user to plot
+    usage: /plot
+    permission: plot.god

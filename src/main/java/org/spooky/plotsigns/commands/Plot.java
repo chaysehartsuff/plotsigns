@@ -5,6 +5,7 @@ import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
+import de.tr7zw.nbtapi.NBTBlock;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Sign;
@@ -67,7 +68,9 @@ public class Plot implements CommandExecutor {
         ss.setLine(1, ChatColor.YELLOW + "Plot");
         ss.setLine(2, ChatColor.YELLOW +  "#" + plotNum);
         ss.setLine(3, ChatColor.YELLOW +  "============");
-        sign.update();
+        NBTBlock nbt = new NBTBlock(sign.getBlock());
+        nbt.getData().setBoolean("Glowing", true);
+        sign.update(true, false);
         return sign;
     }
 }
