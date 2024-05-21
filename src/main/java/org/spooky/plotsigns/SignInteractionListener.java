@@ -37,14 +37,15 @@ public class SignInteractionListener implements Listener {
     List<SignTimedObject> sto;
     List<GracePeriodObject> gpo;
     private int confirm_clicks;
+    private int confirmClicksConfig;
 
-
-    public SignInteractionListener(List<SignPlot> signPlots, World world, List<SignTimedObject> sto, List<GracePeriodObject> gpo) {
+    public SignInteractionListener(List<SignPlot> signPlots, World world, List<SignTimedObject> sto, List<GracePeriodObject> gpo, int confirmClicksConfig) {
         this.signPlots = signPlots;
         this.world = world;
         this.sto = sto;
         this.gpo = gpo;
         this.confirm_clicks = 0;
+        this.confirmClicksConfig = confirmClicksConfig;
     }
 
     @EventHandler
@@ -71,9 +72,9 @@ public class SignInteractionListener implements Listener {
                             if(region != null) {
                                 // player validation
                                 if(region.getOwners().contains(event.getPlayer().getUniqueId())) {
-                                    int confirmClicks = 3;
-                                    event.getPlayer().sendMessage(ChatColor.RED+"" + this.confirm_clicks + "/" + confirmClicks);
+                                    int confirmClicks = this.confirmClicksConfig;
                                     if(confirmRelease(event.getPlayer(), region, 3, confirmClicks)){
+                                        event.getPlayer().sendMessage(ChatColor.RED+"" + this.confirm_clicks + "/" + confirmClicks);
                                         event.getPlayer().sendMessage("You have released " + region.getId());
                                         event.getPlayer().sendMessage(ChatColor.YELLOW + "You have 5 minutes to reclaim before the plot will be cleared");
                                         region.getOwners().removeAll();
@@ -82,6 +83,9 @@ public class SignInteractionListener implements Listener {
 
                                     } else if(this.confirm_clicks == 1) {
                                         event.getPlayer().sendMessage(ChatColor.YELLOW+"Click sign 3 times to release plot");
+                                        event.getPlayer().sendMessage(ChatColor.RED+"" + this.confirm_clicks + "/" + confirmClicks);
+                                    } else{
+                                        event.getPlayer().sendMessage(ChatColor.RED+"" + this.confirm_clicks + "/" + confirmClicks);
                                     }
                                     break; // <-- end interaction here
                                 } else{
@@ -215,11 +219,13 @@ public class SignInteractionListener implements Listener {
             for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
                 for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
                     for (int y = min.getBlockY(); y <= max.getBlockY(); y++) {
+                        BlockVector3 point = BlockVector3.at(x, y, z);
                         if (y != yLevel) {
-                            BlockVector3 point = BlockVector3.at(x, y, z);
                             if (region.contains(point)) {
                                 editSession.setBlock(point, BlockTypes.AIR.getDefaultState());
                             }
+                        } else if (region.contains(point)){
+                            editSession.setBlock(point, BlockTypes.OAK_PLANKS.getDefaultState());
                         }
                     }
                 }

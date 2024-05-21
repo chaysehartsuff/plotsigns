@@ -1,9 +1,11 @@
 package org.spooky.plotsigns.commands;
 
+import java.io.File;
 import java.util.*;
 
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.math.Vector3;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -21,15 +23,19 @@ import org.spooky.plotsigns.storage.SignPlot;
 public class PlotScan implements CommandExecutor {
 
     private World world;
-    public PlotScan(World world){
+    private File pluginFile;
+    private int plotAmount;
 
+    public PlotScan(World world, File pluginFile, int plotAmount){
+        this.pluginFile = pluginFile;
         this.world = world;
+        this.plotAmount = plotAmount;
     }
 
     private List<String> getRegionNames() {
 
         ArrayList<String> regionNames = new ArrayList<String>();
-        for(int i = 1; i < 34; i++){
+        for(int i = 1; i < this.plotAmount; i++){
             regionNames.add("plot".concat(Integer.toString(i)));
         }
         return regionNames;
@@ -76,8 +82,9 @@ public class PlotScan implements CommandExecutor {
 
 
         // Save to plots.json
-        JsonUtil.writeToJsonFile(signPlots, "./spooky/plotsigns/signplots.json");
+        JsonUtil.writeToJsonFile(signPlots, "signplots.json", this.pluginFile);
         commandSender.sendMessage("plots.json saved to spooky/plotsigns/signplots");
+        commandSender.sendMessage(ChatColor.YELLOW + "Please refresh for changes to take affect");
 
         return true;
     }

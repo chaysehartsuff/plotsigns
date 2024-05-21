@@ -7,9 +7,20 @@ commands:
   plotscan:
     description: Scans for all plots and signs
     usage: /plotscan
-    permission: plotsigns.god
+    permission: plot.god
+    permission-message: You do not have permission to perform this command.
+    permission-level: op
+
+  plotrefresh:
+    description: Refreshes all plot signs
+    usage: /plotrefresh
+    permission: plot.god
+    permission-message: You do not have permission to perform this command.
+    permission-level: op
 
   plot:
     description: Release or Add user to plot
     usage: /plot
     permission: plot.god
+    permission-message: You do not have permission to perform this command.
+    permission-level: op

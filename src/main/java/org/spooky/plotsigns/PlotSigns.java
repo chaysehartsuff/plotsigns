@@ -9,12 +9,14 @@ import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.spooky.plotsigns.commands.Plot;
+import org.spooky.plotsigns.commands.PlotRefresh;
 import org.spooky.plotsigns.commands.PlotScan;
 import org.spooky.plotsigns.objects.GracePeriodObject;
 import org.spooky.plotsigns.objects.SignTimedObject;
 import org.spooky.plotsigns.storage.JsonUtil;
 import org.spooky.plotsigns.storage.SignPlot;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +27,13 @@ public final class PlotSigns extends JavaPlugin {
     List<SignTimedObject> sto;
     List<GracePeriodObject> gpo;
 
+    // config values
+    int confirmClicksConfig = this.getConfig().getInt("settings.release-click");
+    int plotAmountConfig = this.getConfig().getInt("settings.plot-amount");
+
     @Override
     public void onEnable() {
+        this.saveDefaultConfig();
         World world = this.getServer().getWorld("world");
 
         loadJSONData();
@@ -40,12 +47,13 @@ public final class PlotSigns extends JavaPlugin {
         if (this.gpo == null)
             this.gpo = new ArrayList<>();
 
-        this.getCommand("plotscan").setExecutor(new PlotScan(world));
+        this.getCommand("plotscan").setExecutor(new PlotScan(world, this.getDataFolder(), plotAmountConfig));
         this.getCommand("plot").setExecutor(new Plot(world, signPlots));
+        this.getCommand("plotrefresh").setExecutor(new PlotRefresh(signPlots, world));
 
         // Registering the event listener
         PluginManager pluginManager = this.getServer().getPluginManager();
-        pluginManager.registerEvents(new SignInteractionListener(this.signPlots, world, sto, gpo), this);
+        pluginManager.registerEvents(new SignInteractionListener(this.signPlots, world, sto, gpo, confirmClicksConfig), this);
     }
 
     @Override
@@ -64,8 +72,7 @@ public final class PlotSigns extends JavaPlugin {
 
     private void loadJSONData(){
 
-        this.signPlots = JsonUtil.readFromJsonFile("./spooky/plotsigns/signplots.json", new TypeReference<List<SignPlot>>(){});
-
+        this.signPlots = JsonUtil.readFromJsonFile("signplots.json", new TypeReference<List<SignPlot>>(){}, this.getDataFolder());
     }
 
     private void setupJobs(){
@@ -74,7 +81,7 @@ public final class PlotSigns extends JavaPlugin {
             public void run() {
                 // clear all sto entries 15 seconds or older
                 cleanSTO(5);
-                cleanGPO(5);
+                cleanGPO(300);
             }
         }.runTaskTimer(this, 0L, 20L);
     }
